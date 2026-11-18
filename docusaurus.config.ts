@@ -291,7 +291,7 @@ export default async function createConfig(): Promise<Config> {
   // Site base URL. remark-d2's linkPath must include this prefix or
   // generated img src attributes will skip /zebra-handheld-rfid-iotc/
   // and 404 in production. Define once and reference below.
-  const baseUrl = '/';
+  const baseUrl = '/zebra-ziotc-fixed-reader-docs/';
   const d2LinkPath = `${baseUrl}d2`.replace(/\/+/g, '/');
 
   // WINDOWS ONLY, AND IT BREAKS EVERY DIAGRAM. remark-d2 builds the image URL
@@ -358,7 +358,7 @@ export default async function createConfig(): Promise<Config> {
   const config: Config = {
   title: 'Zebra Fixed Reader',
   tagline: 'MQTT API Documentation for RFD40 / RFD90 Series Handheld RFID Reader Sleds',
-  url: 'https://ubiquitous-bassoon-kmn533n.pages.github.io',
+  url: 'https://aa5123.github.io',
   baseUrl,
   // TEMPORARY while the handheld content is replaced: Resources pages, the home page and the 404
   // page still link to the archived handheld guides. Restore both to 'throw' once those are rewritten.
@@ -403,8 +403,8 @@ export default async function createConfig(): Promise<Config> {
   // the reason `exclude` could not have saved that either.
   onDuplicateRoutes: 'throw',
   favicon: 'img/brand/zebra-mark.svg',
-  organizationName: 'zebratechnologies',
-  projectName: 'docs-rfid-handheld-iotc',
+  organizationName: 'AA5123',
+  projectName: 'zebra-ziotc-fixed-reader-docs',
   // Visitor-analytics config for the PostHog client module
   // (src/client-modules/posthog). Sourced from build-time env so no key lives
   // in the repo; when POSTHOG_KEY is unset the module stays inert — nothing

@@ -95,6 +95,6 @@ jobs:
           # person, but a second identity, so each deploy reintroduced a second
           # contributor to the graph. force_orphan below means gh-pages is replaced
           # wholesale every deploy, so this value alone determines its authorship.
-          user_name: Abdul Latheef Mohamed
-          user_email: abdullatheef.mohamed@zebra.com
+          user_name: AA5123
+          user_email: AA5123@users.noreply.github.com
           force_orphan: true
