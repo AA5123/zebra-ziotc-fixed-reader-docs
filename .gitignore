@@ -25,5 +25,3 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Local source documents (Word drafts), not for the repository
-information/
