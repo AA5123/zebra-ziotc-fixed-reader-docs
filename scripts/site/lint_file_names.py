@@ -53,6 +53,8 @@ EXEMPT_TREES: list[tuple[str, str]] = [
      '.markdownlint-cli2.jsonc already apply to this tree.'),
     ('.sources/',
      'source-material archive; filenames are as received.'),
+    ('information/',
+     'source Word documents authored outside this repository; filenames are as received.'),
     ('.claude/', 'tool-managed.'),
     ('.playwright-mcp/', 'tool output.'),
     ('orphans/', 'retired pages held verbatim pending a decision.'),
