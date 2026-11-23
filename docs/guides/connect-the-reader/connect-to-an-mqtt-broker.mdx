@@ -3,227 +3,228 @@ id: connect-to-an-mqtt-broker
 title: "How do I connect to an MQTT broker?"
 sidebar_label: "How do I connect to an MQTT broker?"
 sidebar_position: 2
-description: "Configure and verify an MQTT connection for a reader interface."
+description: "Configure a reader interface to exchange commands, responses, tag data, or events with an MQTT broker, and confirm that it connects."
 sidebar_custom_props: { emoji: "🛠", card: "Configure and verify an MQTT connection for a reader interface." }
 doc_type: how-to
 page_meta:
   - "Audience: Administrators and integrators"
-  - "Read time: 8 min"
+  - "Read time: 10 min"
 ---
 
-Configure an MQTT connection to exchange commands, responses, tag data, or management events with the reader.
+Connect a reader interface to an MQTT broker so that your application can send commands to the reader and receive responses, tag data, or management events. When you finish, the interface shows **Connected** and messages flow between the reader and the broker.
+
+**Applies to:** All FXR fixed readers.
 
 :::note
-In the web console, configure each interface separately, even if the interfaces use the same broker. Complete Steps 1–6 for each interface, then test the configured interfaces in Step 7.
+Each interface has its own endpoint configuration. Configure the interfaces your application needs one at a time by repeating Steps 1–6. Interfaces can use the same MQTT broker or different brokers.
 :::
 
 ## Before You Begin
 
-For each interface, obtain:
+- Sign in to the Reader Web Interface as an **Admin** user.
+- Make sure the reader can reach the broker over the network.
+- Collect the following values for each interface you configure:
 
-- Broker hostname or IP address, listening port, and protocol.
-- MQTT client ID and broker credentials, if required.
-- Topic names and the permissions needed to publish and subscribe.
-- Certificates and private key, if required for a secure connection.
-- Batching and retention values, if configuring Tag Data or Management Events.
+| You need | Example | Notes |
+| --- | --- | --- |
+| Broker hostname or IP address | `broker.example.com` | — |
+| Port | `1883` | Use the port configured on your broker for the selected protocol. |
+| Protocol | TCP | TCP, TLS, WebSocket, or Secure WebSocket. |
+| Client ID | `fxr-dock01-mgmt` | Must be unique for each connection to the broker. |
+| Username and password | — | Only if the broker requires authentication. |
+| Topic names | `site/dock01/mgmt/cmd` | Defined by you and your application. |
+| Certificates | — | Only for TLS or Secure WebSocket. PEM format, RSA key. |
 
-Ensure that the reader can reach the broker over the network.
+To configure the connection with an API instead of the Reader Web Interface, see [Configure Using the API](#configure-using-the-api).
 
-For API configuration, see [Configure Using the API](#configure-using-the-api).
+## Choose an Interface
 
-## Step 1: Select the Interface
+Select the interface that matches what your application needs to do.
 
-1. Sign in to the reader web console.
-2. Go to **Settings > Endpoint**.
-3. Select the interface you want to configure.
-
-![Endpoint page with the Management interface selected](./images/mqtt-select-interface.png)
-
-<p className="figure-caption"><strong>Figure 1:</strong> Select an interface on the Endpoint page.</p>
-
-| If you want to… | Select |
+| If you want to… | Configure |
 | --- | --- |
 | Configure or manage the reader | [Management](../introduction/ziotc-interfaces.mdx#management-interface) |
 | Start or stop RFID inventory | [Control](../introduction/ziotc-interfaces.mdx#control-interface) |
 | Send tag observations to an application | [Tag Data 1 or Tag Data 2](../introduction/ziotc-interfaces.mdx#data-interface) |
 | Receive reader events, such as heartbeats and warnings | [Management Events](../introduction/ziotc-interfaces.mdx#management-events-interface) |
 
-**Example:** To start reading tags and send observations to an application, configure both **Control** and a **Tag Data** interface.
+You can configure up to two Tag Data interfaces: **Tag Data 1** and **Tag Data 2**.
 
-Configure each interface your application needs separately. Each can use its own broker settings. For more information, see [ZIoTC Interfaces](../introduction/ziotc-interfaces.mdx).
+**Example:** To start reading tags and send the observations to an application, configure both **Control** and **Tag Data 1**.
 
+For more information, see [ZIoTC Interfaces](../introduction/ziotc-interfaces.mdx).
+
+{/* TODO: confirm with engineering whether publishing a change to the Management interface interrupts an active remote management session. If it does, add a caution here. */}
+
+## Step 1: Open the Endpoint Settings
+
+1. Sign in to the Reader Web Interface.
+2. Go to **Settings > Endpoint**.
+3. Select the interface you want to configure.
 4. Set **Endpoint Type** to **MQTT**.
-5. Enter an **Endpoint Name** and **Endpoint Description**.
+5. Enter an **Endpoint Name** and an **Endpoint Description**. Both fields are required.
 
-## Step 2: Configure the Connection
+![Endpoint page with the Management interface selected](./images/mqtt-select-interface.png)
 
-Select the **Connections** tab and enter the settings for the broker used by the selected interface.
+<p className="figure-caption"><strong>Figure 1:</strong> Select an interface on the Endpoint page.</p>
+
+## Step 2: Enter the Connection Settings
+
+Select the **Connections** tab and enter the broker settings for the selected interface.
 
 ![MQTT Connections tab with Control selected](./images/mqtt-connection.png)
 
 <p className="figure-caption"><strong>Figure 2:</strong> MQTT connection settings for the selected interface.</p>
 
-| Field | Description |
-| --- | --- |
-| **Server** | Enter the broker hostname or IP address. |
-| **Port** | Enter the broker’s listening port for the selected protocol. |
-| **Protocol** | Select the transport configured on the broker, such as TCP, TLS, Web Socket, or Secure WebSocket. |
-| **Client Id** | Enter the identifier for this MQTT connection. Avoid using the same client ID for multiple active connections to the same broker. |
-| **Clean Session** | Select the session behavior required by your application. |
-| **Debug** | Enable when collecting connection information for troubleshooting. |
-| **BASIC Authentication** | Enable and enter the username and password if required by the broker. |
-| **Keep Alive** | Enter the keep-alive interval for the connection. |
-| **Qos** | Select the quality of service required by your application and supported by the reader. |
-
-Use the port configured on your broker. For example, MQTT over TCP commonly uses port `1883`, and MQTT over TLS commonly uses port `8883`.
-
-## Step 3: Configure Topics
-
-Select the **Topic** tab and configure the topics for the selected interface. The examples below are illustrative; use the topic names and permissions configured for your broker and application.
-
-### Management Interface
-
-| Field | Purpose | Example |
+| Field | Description | Default |
 | --- | --- | --- |
-| **Command Topic** | The reader subscribes to this topic to receive management commands. | `readers/reader-01/management/command` |
-| **Response Topic** | The reader publishes management responses to this topic. | `readers/reader-01/management/response` |
+| **Server** | The broker hostname or IP address. | — |
+| **Port** | The broker's listening port for the selected protocol. MQTT over TCP commonly uses `1883`, and MQTT over TLS commonly uses `8883`. | — |
+| **Protocol** | The transport the broker listens on: **TCP**, **TLS**, **WebSocket**, or **Secure WebSocket**. | — |
+| **Client Id** | A unique identifier for this connection. If two active connections use the same client ID, the broker can disconnect one of them. | — |
+| **Clean Session** | When enabled, the broker starts a new session each time the reader connects and does not keep subscriptions or queued messages from a previous session. | Enabled |
+| **Debug** | Records connection details for troubleshooting. Leave it disabled during normal operation. | Disabled |
+| **BASIC Authentication** | When enabled, enter the broker **Username** and **Password**. | — |
+| **Keep Alive** | The maximum time, in seconds, between messages. If no message is sent within this time, the reader sends a ping to keep the connection open. | `60` |
+| **Qos** | The MQTT quality of service: `0` (at most once), `1` (at least once), or `2` (exactly once). | `0` |
 
-### Control Interface
+{/* TODO: confirm the secure port shown in the Reader Web Interface. Zebra API examples use 8883 for TLS; a value of 1888 was also reported. */}
 
-| Field | Purpose | Example |
-| --- | --- | --- |
-| **Command Topic** | The reader subscribes to this topic to receive control commands. | `readers/reader-01/control/command` |
-| **Response Topic** | The reader publishes control responses to this topic. | `readers/reader-01/control/response` |
+The settings take effect when you publish the configuration in Step 6.
 
-### Tag Data Interface
+## Step 3: Set the Topics
 
-Configure the publish topic for the selected **Tag Data 1** or **Tag Data 2** interface.
+Select the **Topic** tab and enter the topics for the selected interface.
 
-| Field | Purpose | Example |
-| --- | --- | --- |
-| **Publish Topic** | The reader publishes tag observations to this topic. | `readers/reader-01/data/tags` |
+- Topic names are defined by you. The reader does not fill them in.
+- MQTT wildcards (`+` and `#`) are not supported.
+- The **Command Topic** and **Response Topic** of an interface must be different.
+- Use the same topic names in your application and in the broker's access rules.
 
-### Management Events Interface
+| Interface | Field | Purpose | Example |
+| --- | --- | --- | --- |
+| **Management** | **Command Topic** | The reader subscribes to this topic to receive management commands. | `site/dock01/mgmt/cmd` |
+| **Management** | **Response Topic** | The reader publishes management responses to this topic. | `site/dock01/mgmt/rsp` |
+| **Control** | **Command Topic** | The reader subscribes to this topic to receive control commands. | `site/dock01/ctrl/cmd` |
+| **Control** | **Response Topic** | The reader publishes control responses to this topic. | `site/dock01/ctrl/rsp` |
+| **Tag Data 1** or **Tag Data 2** | **Publish Topic** | The reader publishes tag observations to this topic. | `site/dock01/tags` |
+| **Management Events** | **Publish Topic** | The reader publishes management events to this topic. | `site/dock01/events` |
 
-| Field | Purpose | Example |
-| --- | --- | --- |
-| **Publish Topic** | The reader publishes management events to this topic. | `readers/reader-01/events` |
-
-## Step 4: Configure Certificates
+## Step 4: Add Certificates (TLS and Secure WebSocket Only)
 
 :::note
-Complete this step if you selected **TLS** or **Secure WebSocket**. Otherwise, continue to Step 5.
+Complete this step only if you selected **TLS** or **Secure WebSocket** in Step 2. Otherwise, continue to Step 5.
 :::
 
-Select the **Certificates** tab and configure the certificates required by the broker for the selected interface.
+Certificates must be in **PEM** format with an **RSA** key. Upload them to the reader on the **Certificates** page before you start this step. See [Install and Manage Certificates](../security/install-and-manage-certificates.mdx).
 
-If the broker requires client certificate authentication, choose **Option A** or **Option B**.
+Select the **Certificates** tab. If the broker requires client certificate authentication, choose one of the following options.
 
-### Option A: Use Installed Certificates
+### Option A: Use an Installed Certificate
 
 1. Select **Use Installed Certs**.
-2. In the **Certificate** list, select the installed certificate required for the connection.
+2. In the **Certificate** list, select the client certificate for this connection.
 
 ![Certificates tab with Use Installed Certs selected](./images/mqtt-installed-certificates.png)
 
-<p className="figure-caption"><strong>Figure 3:</strong> Certificate settings using installed certificates.</p>
+<p className="figure-caption"><strong>Figure 3:</strong> Certificate settings using an installed certificate.</p>
 
 ### Option B: Use Certificate File Paths
 
 1. Clear **Use Installed Certs**.
-2. In **Certificate Path**, enter the absolute path to the client certificate.
-3. In **Private Key Path**, enter the absolute path to the corresponding private key.
+2. In **Certificate Path**, enter the absolute path to the client certificate on the reader.
+3. In **Private Key Path**, enter the absolute path to the matching private key.
 
 ![Certificates tab showing certificate and private key path fields](./images/mqtt-certificate-paths.png)
 
 <p className="figure-caption"><strong>Figure 4:</strong> Certificate settings using file paths.</p>
 
-### Configure the CA Certificate
+### Set the CA Certificate and Verification
 
-Choose how to provide the CA certificate used to validate the broker:
+1. Choose how the reader gets the CA certificate that validates the broker:
+   - **From the reader's store:** Select **Use CA Certs from Store**.
+   - **From a file:** Clear **Use CA Certs from Store** and enter the absolute path in **CA Certificate Path**.
+2. Set **Cert Algorithm** to **RSA** and **Cert Format** to **PEM**.
+3. Select **Verify Server Certificate** and **Verify Host Name**.
 
-- **Use the reader’s certificate store:** Select **Use CA Certs from Store**.
-- **Use a certificate file:** Clear **Use CA Certs from Store** and enter the file’s absolute path in **CA Certificate Path**.
-
-Check the **Cert Algorithm** and **Cert Format** values against your certificate configuration. Select **Verify Server Certificate** and **Verify Host Name**.
-
-## Step 5: Configure Batching and Retention
-
-:::note
-This step applies to **Tag Data 1**, **Tag Data 2**, and **Management Events**. If you selected **Management** or **Control**, continue to Step 6.
+:::caution[Keep certificate verification enabled]
+**Verify Server Certificate** and **Verify Host Name** confirm that the reader is connecting to your broker and not to an impersonator. Disable them only for testing in an isolated network.
 :::
 
-Select the **Batching and Retention** tab and enter the settings required for the selected interface.
+## Step 5: Set Batching and Retention (Tag Data and Management Events Only)
 
-For an explanation of these settings, see [Batching and Retention](./overview.mdx#batching-and-retention).
+:::note
+Complete this step only for **Tag Data 1**, **Tag Data 2**, or **Management Events**. For **Management** or **Control**, continue to Step 6.
+:::
+
+Select the **Batching and Retention** tab.
 
 ![Batching and Retention tab with Tag Data 1 selected](./images/mqtt-batching-retention.png)
 
 <p className="figure-caption"><strong>Figure 5:</strong> Batching and retention settings for Tag Data 1.</p>
 
-Under **Batching**, configure:
+**Batching** groups observations into messages. The reader sends a batch when either the reporting interval or the maximum payload size is reached, whichever comes first.
 
-| Field | Setting |
+| Field | Description |
 | --- | --- |
-| **Reporting Interval (in milliseconds)** | Enter the reporting interval. |
-| **Max Payload Size (in bytes)** | Enter the maximum payload size. |
+| **Reporting Interval (in milliseconds)** | How long the reader waits before sending a batch. |
+| **Max Payload Size (in bytes)** | The maximum size of one message. |
 
-Under **Retention**, configure:
+**Retention** holds events when delivery is delayed, such as during a connection interruption.
 
-| Field | Setting |
+| Field | Description |
 | --- | --- |
-| **Throttle (in events per second)** | Enter the throttle value. |
-| **No. of Events** | Enter the number of events to retain. |
-| **Event Retention Time (in minutes)** | Enter the event retention time. |
+| **Throttle (in events per second)** | The rate at which the reader sends events. |
+| **No. of Events** | The maximum number of events the reader holds. |
+| **Event Retention Time (in minutes)** | How long the reader holds events before discarding them. |
 
-## Step 6: Publish the Configuration
+For guidance on choosing values, see [Batching and Retention](./overview.mdx#batching-and-retention).
+
+## Step 6: Publish and Confirm the Connection
 
 1. Confirm that the correct interface is selected.
-2. Select **Preview** and review the connection, topic, certificate, and applicable batching and retention settings.
+2. Select **Preview** and review the connection, topic, certificate, and batching and retention settings.
 3. Select **Publish** to apply the configuration.
-4. Check that the selected interface shows **connected**.
+4. Check that the interface status shows **Connected**.
 
-## Step 7: Verify Communication
+{/* TODO: add a screenshot showing where the Connected status appears. */}
 
-You can use an MQTT client to test the reader connection. This procedure uses **MQTTX** as an example. If you use another client, follow its instructions to connect, subscribe, and publish messages.
+If the status does not change to **Connected**, see [Troubleshooting](#troubleshooting).
 
-### Before You Begin
+To configure another interface, select it and repeat Steps 1–6.
 
-- Configure and publish the interfaces you want to test.
-- Obtain the broker address, port, credentials, and topic names for each interface.
-- Confirm that your computer can reach the broker.
-- To test tag data, configure both a **Control** interface and a **Tag Data** interface.
+## Verify Communication
 
-### Connect MQTTX to the Broker
+**Connected** confirms that the reader reached the broker. To confirm that messages flow, use an MQTT client. This example uses [MQTTX](https://mqttx.app/); other clients work in a similar way.
 
-1. Download and install [MQTTX](https://mqttx.app/).
-2. Open MQTTX and create a new connection.
-3. Enter the broker address and port configured for the interface you want to test.
-4. Enter a unique client ID for MQTTX. Configure authentication and TLS certificates if the broker requires them.
+### Connect the Client
+
+1. Install and open MQTTX, and create a new connection.
+2. Enter the broker address and port used by the interface you want to test.
+3. Enter a client ID that is different from the reader's client IDs.
+4. If the broker requires them, enter the username, password, and TLS certificates.
 5. Select **Connect**.
 
-If interfaces use different brokers, create a separate MQTTX connection for each broker.
+If your interfaces use different brokers, create one MQTTX connection for each broker.
 
 ### Subscribe to the Reader Topics
 
-In MQTTX, select **New Subscription** and subscribe to the topics you want to monitor:
+Select **New Subscription** and subscribe to the topics you want to monitor:
 
 | Interface | Subscribe to |
 | --- | --- |
-| **Management** | Management response topic |
-| **Control** | Control response topic |
-| **Tag Data 1 / Tag Data 2** | Tag Data publish topic |
-| **Management Events** | Management Events publish topic |
+| **Management** | The Management **Response Topic** |
+| **Control** | The Control **Response Topic** |
+| **Tag Data 1** / **Tag Data 2** | The Tag Data **Publish Topic** |
+| **Management Events** | The Management Events **Publish Topic** |
 
-Use the topic names configured on your reader. Subscribe through the MQTTX connection for the broker used by each interface.
+### Test the Management Interface
 
-### Test Management
+Publish a management command to the Management **Command Topic** and confirm that a response arrives on the Management **Response Topic**. For example, send [`get_status`](https://immanuel2504.github.io/fxr60-90-rest-mqtt/mqtt/docs/index.html#op-get_status):
 
-Publish a supported management command to the **Management command topic**. Confirm that a response appears on the Management response topic.
+{/* TODO: confirm the get_status request fields (command_id or requestId) against the FXR MQTT API reference, and replace the reference link with the official MQTT API address. */}
 
-For example, send [`get_status`](https://immanuel2504.github.io/fxr60-90-rest-mqtt/mqtt/docs/index.html#op-get_status):
-
-```json
+```json title="get_status request"
 {
   "command": "get_status",
   "command_id": "test-status-01",
@@ -231,34 +232,82 @@ For example, send [`get_status`](https://immanuel2504.github.io/fxr60-90-rest-mq
 }
 ```
 
-### Test Control and Tag Data
+### Test the Control and Tag Data Interfaces
 
 To start inventory, receive a tag observation, and stop inventory, follow [Quickstart: Read a Tag and Send Data through MQTT](../getting-started/quickstart-first-tag-to-mqtt-in-15-minutes.mdx).
 
-### Test Management Events
+### Test the Management Events Interface
 
-1. Confirm that MQTTX is subscribed to the **Management Events publish topic**.
-2. Wait for an enabled event, such as a configured heartbeat.
-3. Confirm that the event appears in MQTTX. See the [Heartbeat reference](https://immanuel2504.github.io/fxr60-90-rest-mqtt/mqtt/docs/index.html#op-heartbeat).
+Wait for an enabled event, such as a heartbeat, and confirm that it appears on the Management Events **Publish Topic**. Heartbeats are sent at the interval set in the reader's management event configuration (`managementEventConfig.heartbeat.interval`, in seconds). An interval of `0` turns heartbeats off. See the [Heartbeat reference](https://immanuel2504.github.io/fxr60-90-rest-mqtt/mqtt/docs/index.html#op-heartbeat).
 
-:::note
-If Tag Data is configured for HTTP POST instead of MQTT, check the configured HTTP server for tag data.
-:::
+### Check the Status with the REST API
 
-The **connected** status confirms the broker connection. Receiving the expected response, tag data, or event confirms the message flow.
+Call [`GET /cloud/status`](https://techdocs.zebra.com/dcs/rfid/fxr-api-docs/rest/docs/swagger#/System/getStatus) and check `interfaceConnectionStatus`. Each configured connection shows `connectionStatus: connected` and an empty `connectionError`.
 
-**REST API:** Use [`GET /cloud/status`](https://techdocs.zebra.com/dcs/rfid/fxr-api-docs/rest/docs/swagger#/System/getStatus) to check reader status or [`PUT /cloud/start`](https://techdocs.zebra.com/dcs/rfid/fxr-api-docs/rest/docs/swagger#/Control/startInventory) to start inventory.
-
-To configure another interface, select it and repeat **Steps 1–6** using its broker settings, then perform the applicable verification above.
+REST calls require a bearer token. Get one by calling `GET /cloud/localRestLogin` with **Admin** credentials, and then send it in the `Authorization: Bearer <token>` header.
 
 <span id="api-option-configure-an-mqtt-endpoint" />
 <span id="rest-api-option-configure-mqtt-endpoints" />
 
 ## Configure Using the API
 
-Use an MQTT command or the local REST API as an alternative to Steps 1–6. You can configure the broker connection, topics, and, where applicable, certificates, batching, and retention.
+Instead of Steps 1–6, you can send the whole endpoint configuration in one request:
 
-- **MQTT** — If the reader's **Management** interface is already connected to a broker, send [`set_importCloudConfig`](https://immanuel2504.github.io/fxr60-90-rest-mqtt/mqtt/docs/index.html#op-set_importCloudConfig) to the Management command topic.
-- **Local REST API** — Send the configuration directly to the reader using [`PUT /cloud/cloudConfig`](https://techdocs.zebra.com/dcs/rfid/fxr-api-docs/rest/docs/swagger#/System/setImportcloudconfig).
+- **MQTT:** If the **Management** interface is already connected, send [`set_importCloudConfig`](https://immanuel2504.github.io/fxr60-90-rest-mqtt/mqtt/docs/index.html#op-set_importCloudConfig) to the Management **Command Topic**.
+- **REST:** Send [`PUT /cloud/cloudConfig`](https://techdocs.zebra.com/dcs/rfid/fxr-api-docs/rest/docs/swagger#/System/setImportcloudconfig) to the reader with a bearer token.
 
-After applying the settings, continue to [Step 7: Verify Communication](#step-7-verify-communication).
+The request contains an `endpointConfig` object with a section for each interface: `management.commandResponse`, `control.commandResponse`, `data.event`, and `management.event`. Include only the sections you are configuring. Use connection type `mqtt` for a standard MQTT broker.
+
+```json title="Example: Tag Data over MQTT with TLS"
+{
+  "endpointConfig": {
+    "data": {
+      "event": {
+        "connections": [
+          {
+            "name": "DATA_MQTT_TLS",
+            "description": "Tag data to the site broker",
+            "type": "mqtt",
+            "options": {
+              "enableSecurity": true,
+              "endpoint": { "hostName": "broker.example.com", "port": 8883, "protocol": "ssl" },
+              "additional": { "clientId": "fxr-dock01-data", "cleanSession": true, "keepAlive": 60, "qos": 1 },
+              "publishTopic": ["site/dock01/tags"],
+              "security": {
+                "installedCertificateName": "DOCK01_CLIENT",
+                "installedCertificateType": "client",
+                "keyAlgorithm": "RS256",
+                "keyFormat": "PEM",
+                "verifyHostName": true,
+                "verifyPeer": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+After you apply the configuration, confirm it as described in [Verify Communication](#verify-communication).
+
+## Troubleshooting
+
+| Symptom | Likely cause | What to do |
+| --- | --- | --- |
+| The status does not change to **Connected**. | The server, port, or protocol does not match the broker, or the reader cannot reach the broker. | Check the values against the broker's listener settings, and check the network path from the reader to the broker. |
+| The connection drops and reconnects repeatedly. | Another client is using the same **Client Id**. | Give each connection a unique client ID. |
+| A TLS connection fails. | The CA certificate does not match the broker's certificate, the broker host name does not match its certificate, or a certificate is not in PEM format with an RSA key. | Check the certificates on the **Certificates** page and make sure **Server** matches the name in the broker's certificate. |
+| The broker rejects the connection. | The username or password is wrong, or **BASIC Authentication** is not enabled. | Enable **BASIC Authentication** and re-enter the credentials. |
+| The status is **Connected**, but no messages arrive. | The topic names do not match, the client is subscribed on a different broker, or the broker's access rules block the topic. | Check that the topic names match exactly on the reader, the client, and the broker. |
+
+To collect more detail, enable **Debug** in Step 2 while you troubleshoot, and disable it afterward. For more help, see [Network, MQTT, and Cloud Connectivity Issues](../troubleshooting/network-mqtt-and-cloud-connectivity-issues.mdx).
+
+## Related Topics
+
+- [How do I connect to AWS IoT Core?](./connect-to-aws-iot-core.mdx)
+- [How do I connect to Azure IoT Hub?](./connect-to-azure-iot-hub.mdx)
+- [How do I configure batching and retention?](./configure-batching-and-retention.mdx)
+- [ZIoTC Interfaces](../introduction/ziotc-interfaces.mdx)
+- [Install and Manage Certificates](../security/install-and-manage-certificates.mdx)
