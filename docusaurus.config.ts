@@ -1040,7 +1040,7 @@ export default async function createConfig(): Promise<Config> {
           title: 'Build and Test',
           items: [
             { label: 'Network Connectivity', to: '/guides/network-connectivity' },
-            { label: 'Reader Connectivity', to: '/guides/reader-connectivity' },
+            { label: 'Connect the Reader', to: '/guides/connect-the-reader' },
           ],
         },
         {
