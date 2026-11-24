@@ -30,10 +30,15 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
       # d2 renders the diagrams at build time; the build fails without it.
+      # Downloaded straight from the GitHub release, with retries, so a temporary network
+      # error does not fail the publish.
       - name: Install d2 CLI
         run: |
-          curl -fsSL https://d2lang.com/install.sh | sh -s -- --version v0.7.1
-          d2 --version
+          curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors -o "$RUNNER_TEMP/d2.tar.gz" \
+            https://github.com/terrastruct/d2/releases/download/v0.7.1/d2-v0.7.1-linux-amd64.tar.gz
+          tar -xzf "$RUNNER_TEMP/d2.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/d2-v0.7.1/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/d2-v0.7.1/bin/d2" --version
       - name: Build Docusaurus site
         run: npm run build
         env:
