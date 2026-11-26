@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkzebra_ziotc_fixed_reader_docs=self.webpackChunkzebra_ziotc_fixed_reader_docs||[]).push([["9452"],{5146(e,r,d){d.r(r),d.d(r,{default:()=>c});var a=d(74848);d(96540);var s=d(56347),t=d(66497);function c(){let e=(0,t.Ay)("/guides/");return(0,a.jsx)(s.rd,{to:e})}}}]);
